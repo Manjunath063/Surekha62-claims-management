@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: claims-backend111
+    build: ./Backend
+    ports:
+      - "3019:3019"
+    depends_on:
+      - postgres
+    environment:
+      - PGUSER=postgres
+      - PGPASSWORD=admin123
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=employee_claims_db
+
+  employee-claim:
+    container_name: claims-employee112
+    build: ./employee-side-claim
+    ports:
+      - "8033:80"
+    depends_on:
+      - backend
+
+  hr-claim:
+    container_name: claims-hr114
+    build: ./hr-claim
+    ports:
+      - "8034:80"
+    depends_on:
+      - backend
+
+  postgres:
+    container_name: claims-postgres115
+    image: postgres:13
+    ports:
+      - "5414:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: employee_claims_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  pgdata:
+
